@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCD Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .chat-message {
+            margin: 10px 0;
+        }
+        .chat-message.user {
+            text-align: right;
+        }
+        .chat-message.bot {
+            text-align: left;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <h1>HCD Chatbot</h1>
+    
+    <div class="container">
+        <h2>Select LLM Client</h2>
+        <form id="select-client-form">
+            <label for="client">Client:</label>
+            <select id="client" name="client">
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+            </select>
+            <button type="submit">Select Client</button>
+        </form>
+        
+        <h2>Chat with the bot</h2>
+        <div id="chat-box" class="chat-box"></div>
+        <form id="chat-form">
+            <textarea id="user-input" name="user_input" rows="4" placeholder="Type your message here..."></textarea><br>
+            <button type="submit">Send</button>
+        </form>
+        
+        <h2>Save Chat History</h2>
+        <form id="save-chat-form">
+            <label for="filename">Filename:</label>
+            <input type="text" id="filename" name="filename" value="chat_history.txt"><br>
+            <button type="submit">Save Chat</button>
+        </form>
+
+        <h2>Reset Chat</h2>
+        <form id="reset-chat-form">
+            <button type="submit" class="reset-button">Reset Chat</button>
+        </form>
+        <div id="reset-message" class="success-message"></div> <!-- Reset message placeholder -->
+
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const resetMessage = document.getElementById('reset-message');
+        
+        function appendMessage(role, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${role}`;
+            messageDiv.innerHTML = `${role === 'user' ? 'User' : 'Bot'}: ${marked.parse(message)}`;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.getElementById('select-client-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const client = document.getElementById('client').value;
+            fetch('/select_client', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({client: client})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Error: ' + error));
+        });
+
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = userInput.value;
+            if (input.trim() === '') return;
+
+            appendMessage('user', input);
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({user_input: input})
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage('bot', data.response);
+                userInput.value = '';
+            })
+            .catch(error => alert('Error: ' + error));
+        });
+
+        document.getElementById('save-chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const filename = document.getElementById('filename').value;
+            fetch('/save_chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({filename: filename})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Error: ' + error));
+        });
+
+        document.getElementById('reset-chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/reset_chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                resetMessage.textContent = data.message;  // Display reset message
+                chatBox.innerHTML = '';  // Clear the chat box in the UI
+            })
+            .catch(error => {
+                resetMessage.textContent = 'Error: ' + error.message;  // Display reset error message
+            });
+        });
+
+    </script>
+</body>
+</html>
