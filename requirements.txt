@@ -1,0 +1,6 @@
+Flask==3.0.3
+openai
+google-generativeai
+python-dotenv
+pydantic
+typing
