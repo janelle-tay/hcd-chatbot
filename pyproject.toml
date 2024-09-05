@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "hcd-chatbot"
+version = "0.1.0"
+description = ""
+authors = ["janelle-tay <janelle-tay@temus.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+Flask = "3.0.3"
+openai = "^1.43.0"
+google-generativeai = "^0.7.2"
+python-dotenv = "^1.0.1"
+pydantic = "^2.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
