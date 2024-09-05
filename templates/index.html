@@ -72,6 +72,17 @@
             <button type="submit">Select Client</button>
         </form>
         
+        <div id="edit-prompt-modal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+            <div style="background-color: white; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 40%;">
+                <span id="close-modal" style="float: right; cursor: pointer;">&times;</span>
+                <h3>Edit System Prompt</h3>
+                <form id="edit-prompt-form">
+                    <textarea id="prompt-text" name="prompt" rows="4" placeholder="Type your new system prompt here..."></textarea><br>
+                    <button type="submit">Save</button>
+                </form>
+            </div>
+        </div>
+
         <h2>Chat with the bot</h2>
         <div id="chat-box" class="chat-box"></div>
         <form id="chat-form">
@@ -175,6 +186,37 @@
             .catch(error => {
                 resetMessage.textContent = 'Error: ' + error.message;  // Display reset error message
             });
+        });
+
+        // Open modal
+        document.getElementById('edit-prompt-button').onclick = function() {
+            document.getElementById('edit-prompt-modal').style.display = 'block';
+        };
+
+        // Close modal
+        document.getElementById('close-modal').onclick = function() {
+            document.getElementById('edit-prompt-modal').style.display = 'none';
+        };
+
+        // Handle form submission
+        document.getElementById('edit-prompt-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const prompt = document.getElementById('prompt-text').value;
+
+            // Send the prompt to the server
+            fetch('/update_prompt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({prompt: prompt})
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('edit-prompt-modal').style.display = 'none';
+            })
+            .catch(error => alert('Error: ' + error));
         });
 
     </script>

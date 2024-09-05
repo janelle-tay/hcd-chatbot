@@ -38,7 +38,7 @@ def save_chat():
     try:
         # Save the chat history to the Downloads folder
         rpa.save_chat_history(filename)
-        return jsonify({"status": "success", "message": f"Conversation saved successfully as {filename} in Downloads folder"}), 200
+        return jsonify({"status": "success", "message": f"Chat history saved successfully as {filename} in Downloads folder"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
@@ -49,6 +49,22 @@ def reset_chat():
         return jsonify({"message": "Chat history has been reset."}), 200
     except AttributeError:
         return jsonify({"message": "Failed to reset chat history."}), 500
+    
+@app.route('/update_prompt', methods=['POST'])
+def update_prompt():
+    new_prompt = request.form.get('prompt', '').strip()  # Get the prompt from form and remove any extra whitespace
+
+    if not new_prompt:  # If the prompt is empty or just whitespace
+        # Optionally: Set a default prompt or keep it empty
+        new_prompt = "Default system prompt"  # Replace with an appropriate default if desired
+
+    try:
+        # Update the system prompt for the current RolePlayAgent instance
+        rpa.system_prompt = new_prompt
+        rpa.conversation_manager.add_system_message(new_prompt)
+        return jsonify({"status": "success", "message": "Prompt updated successfully."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Failed to update prompt: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
