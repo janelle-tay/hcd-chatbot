@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 pydantic = "^2.8.2"
 watchdog = "^2.1.0"
 werkzeug = "^3.0.4"
+flask-cors = "^5.0.0"
 
 
 [build-system]

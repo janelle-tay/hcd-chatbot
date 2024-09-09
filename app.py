@@ -1,11 +1,19 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, session
+from flask_cors import CORS
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 import chatbot
 from chatbot import *
+
+load_dotenv()
+
 
 app = Flask(__name__, static_folder="dist")
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 rpa = chatbot.instantiate_llm_model()  # Initialize with the default client
+CORS(app, origins=["*"])
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 
 @app.route("/")
