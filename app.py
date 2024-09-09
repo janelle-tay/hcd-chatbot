@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, session
 
 import chatbot
 from chatbot import *
@@ -31,6 +31,10 @@ def serve_public_files(path):
 @app.route("/assets/<path:path>")
 def serve_static(path):
     return send_from_directory("dist/assets", path)
+
+
+def is_authenticated():
+    return session.get("authenticated", False)
 
 
 @app.route("/auth/verify", methods=["POST"])
