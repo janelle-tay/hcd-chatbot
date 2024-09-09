@@ -4,6 +4,7 @@ import chatbot
 from chatbot import *
 
 app = Flask(__name__, static_folder="dist")
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 rpa = chatbot.instantiate_llm_model()  # Initialize with the default client
 
 
