@@ -1,0 +1,10 @@
+frontend/
+static/
+templates/
+
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+README.md
+.git
